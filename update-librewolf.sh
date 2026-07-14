@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 readonly RELEASE_API="${LIBREWOLF_RELEASE_API:-https://codeberg.org/api/v1/repos/librewolf/bsys6/releases/latest}"
 readonly DOWNLOAD_ROOT="${LIBREWOLF_DOWNLOAD_ROOT:-https://dl.librewolf.net/librewolf}"
 
@@ -40,16 +41,7 @@ extract_release_tag() {
     jq --exit-status --raw-output \
       'if (.tag_name | type) == "string" then .tag_name else error("missing tag_name") end'
   elif command -v python3 >/dev/null 2>&1; then
-    python3 -c '
-import json
-import sys
-
-release = json.load(sys.stdin)
-tag = release.get("tag_name")
-if not isinstance(tag, str):
-    raise ValueError("missing tag_name")
-print(tag)
-'
+    python3 "$SCRIPT_DIR/lib/extract_release_tag.py"
   else
     die 'Parsing Codeberg metadata requires jq or python3.'
   fi
