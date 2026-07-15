@@ -277,7 +277,11 @@ main() {
   checksum_file="$package.sha256sum"
 
   printf 'Downloading %s...\n' "$asset"
-  curl --fail --silent --show-error --location --retry 3 --output "$package" "$download_url"
+  if [[ -t 2 ]]; then
+    curl --fail --progress-bar --show-error --location --retry 3 --output "$package" "$download_url"
+  else
+    curl --fail --silent --show-error --location --retry 3 --output "$package" "$download_url"
+  fi
   curl --fail --silent --show-error --location --retry 3 --output "$checksum_file" "$download_url.sha256sum"
   verify_checksum "$package" "$checksum_file"
   printf 'Checksum verified. Installing LibreWolf %s...\n' "$latest"
