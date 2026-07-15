@@ -211,8 +211,13 @@ install_linux() {
 }
 
 cleanup() {
-  if [[ -n "$MOUNT_POINT" ]] && mount | grep -F "on $MOUNT_POINT " >/dev/null 2>&1; then
-    hdiutil detach "$MOUNT_POINT" >/dev/null 2>&1 || true
+  if [[ -n "$MOUNT_POINT" ]]; then
+    local attempt
+    for attempt in 1 2 3 4 5; do
+      mount | grep -F "on $MOUNT_POINT " >/dev/null 2>&1 || break
+      hdiutil detach "$MOUNT_POINT" -force >/dev/null 2>&1 && break
+      sleep 1
+    done
   fi
   [[ -z "$TEMP_DIR" ]] || rm -rf "$TEMP_DIR"
 }
