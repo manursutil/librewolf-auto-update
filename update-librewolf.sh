@@ -167,6 +167,14 @@ install_macos() {
 
   require_command hdiutil
   require_command ditto
+
+  shopt -s nullglob
+  local stale
+  for stale in "${app_path}".new.* "${app_path}".old.*; do
+    run_privileged rm -rf "$stale"
+  done
+  shopt -u nullglob
+
   MOUNT_POINT="$TEMP_DIR/mount"
   mkdir -p "$MOUNT_POINT"
   hdiutil attach -nobrowse -readonly -mountpoint "$MOUNT_POINT" "$package" >/dev/null
