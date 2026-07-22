@@ -220,14 +220,26 @@ install_linux() {
 
 cleanup() {
   if [[ -n "$MOUNT_POINT" ]]; then
-    local attempt
+    local attempt mount_path="$MOUNT_POINT"
+    if [[ -d "$MOUNT_POINT" ]]; then
+      mount_path="$(cd "$MOUNT_POINT" && pwd -P)"
+    fi
+
     for attempt in 1 2 3 4 5; do
-      mount | grep -F "on $MOUNT_POINT " >/dev/null 2>&1 || break
-      hdiutil detach "$MOUNT_POINT" -force >/dev/null 2>&1 && break
+      mount | grep -F "on $mount_path " >/dev/null 2>&1 || break
+      hdiutil detach "$mount_path" -force >/dev/null 2>&1 && break
       sleep 1
     done
+
+    if mount | grep -F "on $mount_path " >/dev/null 2>&1; then
+      printf 'Warning: The LibreWolf disk image could not be detached; temporary files were left in %s.\n' "$TEMP_DIR" >&2
+      return
+    fi
   fi
-  [[ -z "$TEMP_DIR" ]] || rm -rf "$TEMP_DIR"
+
+  if [[ -n "$TEMP_DIR" ]] && ! rm -rf "$TEMP_DIR" 2>/dev/null; then
+    printf 'Warning: LibreWolf was installed, but temporary files in %s could not be removed.\n' "$TEMP_DIR" >&2
+  fi
 }
 
 main() {
