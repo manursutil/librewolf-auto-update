@@ -37,9 +37,15 @@ assert_failure extract_release_tag 2>/dev/null <<<'{"name":"missing tag"}'
 assert_equal "$(printf '%s' '{"body":"- Fixed startup\n- Improved privacy"}' | extract_release_notes)" $'- Fixed startup\n- Improved privacy'
 assert_equal "$(printf '%s' '{"body":null}' | extract_release_notes)" ''
 assert_equal "$(print_release_notes $'- Fixed startup\n- Improved privacy')" $'\nRelease notes:\n- Fixed startup\n- Improved privacy'
-assert_equal "$(print_release_notes '')" ''
+assert_equal "$(print_release_notes '')" $'\nNo release notes were published for this version.'
 assert_equal "$(printf '%s' 'LibreWolf 152.0.5-1' | extract_version)" '152.0.5-1'
 assert_equal "$(select_asset 152.0.5-1 Darwin arm64)" 'librewolf-152.0.5-1-macos-arm64-package.dmg'
+
+release_notes_output="$({
+  curl() { printf '%s' '{"tag_name":"152.0.5-1","body":"- Fixed startup"}'; }
+  main --release-notes
+})"
+assert_equal "$release_notes_output" $'Latest LibreWolf: 152.0.5-1\n\nRelease notes:\n- Fixed startup'
 
 cleanup_log="$(mktemp)"
 cleanup_state="$(mktemp)"

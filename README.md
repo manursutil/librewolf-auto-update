@@ -24,6 +24,12 @@ Check whether an update is available without installing it:
 ./update-librewolf.sh --check
 ```
 
+View the latest release notes without updating:
+
+```bash
+./update-librewolf.sh --release-notes
+```
+
 Download and install an available update:
 
 ```bash

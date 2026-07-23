@@ -7,18 +7,20 @@ readonly RELEASE_API="${LIBREWOLF_RELEASE_API:-https://codeberg.org/api/v1/repos
 readonly DOWNLOAD_ROOT="${LIBREWOLF_DOWNLOAD_ROOT:-https://dl.librewolf.net/librewolf}"
 
 CHECK_ONLY=false
+SHOW_RELEASE_NOTES=false
 TEMP_DIR=""
 MOUNT_POINT=""
 
 usage() {
   cat <<'EOF'
-Usage: update-librewolf.sh [--check]
+Usage: update-librewolf.sh [--check | --release-notes]
 
 Checks the latest LibreWolf bsys6 release and installs it when it is newer.
 
 Options:
-  --check   Only report whether an update is available.
-  -h        Show this help.
+  --check          Only report whether an update is available.
+  --release-notes  Show the latest release notes without updating.
+  -h, --help       Show this help.
 
 Environment:
   LIBREWOLF_APP          macOS application path (default: /Applications/LibreWolf.app)
@@ -59,8 +61,11 @@ extract_release_notes() {
 
 print_release_notes() {
   local notes="$1"
-  [[ -n "$notes" ]] || return
-  printf '\nRelease notes:\n%s\n' "$notes"
+  if [[ -n "$notes" ]]; then
+    printf '\nRelease notes:\n%s\n' "$notes"
+  else
+    printf '\nNo release notes were published for this version.\n'
+  fi
 }
 
 extract_version() {
@@ -264,21 +269,32 @@ main() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --check) CHECK_ONLY=true ;;
+      --release-notes) SHOW_RELEASE_NOTES=true ;;
       -h|--help) usage; exit 0 ;;
       *) usage >&2; die "Unknown option: $1" ;;
     esac
     shift
   done
 
-  require_command curl
-  os="$(uname -s)"
-  arch="$(normalized_architecture)"
+  if [[ "$CHECK_ONLY" == true && "$SHOW_RELEASE_NOTES" == true ]]; then
+    usage >&2
+    die '--check and --release-notes cannot be used together.'
+  fi
 
+  require_command curl
   release_json="$(curl --fail --silent --show-error --location --retry 3 "$RELEASE_API")"
   latest="$(printf '%s\n' "$release_json" | extract_release_tag)"
   release_notes="$(printf '%s\n' "$release_json" | extract_release_notes)"
   [[ "$latest" =~ ^[0-9]+([.-][0-9]+)+$ ]] || die 'Codeberg returned an invalid release version.'
 
+  if [[ "$SHOW_RELEASE_NOTES" == true ]]; then
+    printf 'Latest LibreWolf: %s\n' "$latest"
+    print_release_notes "$release_notes"
+    exit 0
+  fi
+
+  os="$(uname -s)"
+  arch="$(normalized_architecture)"
   current="$(current_version)"
   [[ -n "$current" ]] || die 'LibreWolf is not installed, or its version could not be detected.'
   [[ "$current" =~ ^[0-9]+([.-][0-9]+)+$ ]] || die "Could not understand installed version: $current"
