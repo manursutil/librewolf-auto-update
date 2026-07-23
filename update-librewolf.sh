@@ -47,6 +47,22 @@ extract_release_tag() {
   fi
 }
 
+extract_release_notes() {
+  if command -v jq >/dev/null 2>&1; then
+    jq --raw-output 'if (.body | type) == "string" then .body else "" end'
+  elif command -v python3 >/dev/null 2>&1; then
+    python3 "$SCRIPT_DIR/lib/extract_release_tag.py" --body
+  else
+    die 'Parsing Codeberg metadata requires jq or python3.'
+  fi
+}
+
+print_release_notes() {
+  local notes="$1"
+  [[ -n "$notes" ]] || return
+  printf '\nRelease notes:\n%s\n' "$notes"
+}
+
 extract_version() {
   grep -Eo '[0-9]+([.-][0-9]+)+' | sed -n '1p' || true
 }
@@ -243,7 +259,7 @@ cleanup() {
 }
 
 main() {
-  local release_json latest current os arch asset download_url package checksum_file
+  local release_json latest release_notes current os arch asset download_url package checksum_file
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -260,6 +276,7 @@ main() {
 
   release_json="$(curl --fail --silent --show-error --location --retry 3 "$RELEASE_API")"
   latest="$(printf '%s\n' "$release_json" | extract_release_tag)"
+  release_notes="$(printf '%s\n' "$release_json" | extract_release_notes)"
   [[ "$latest" =~ ^[0-9]+([.-][0-9]+)+$ ]] || die 'Codeberg returned an invalid release version.'
 
   current="$(current_version)"
@@ -304,6 +321,7 @@ main() {
   esac
 
   printf 'LibreWolf %s was installed successfully.\n' "$latest"
+  print_release_notes "$release_notes"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

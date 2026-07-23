@@ -3,7 +3,8 @@
 A small Bash script that checks the latest LibreWolf release on Codeberg,
 compares it with the installed version, and installs the update when a newer
 version is available. Downloads are verified against LibreWolf's published
-SHA-256 checksum before installation.
+SHA-256 checksum before installation. After a successful update, the script
+prints the release notes published by LibreWolf.
 
 ## Supported systems
 
