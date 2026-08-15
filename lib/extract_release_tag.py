@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Extract fields from a Codeberg release JSON payload.
+"""Extract fields from a Forgejo release JSON payload.
 
 Prints tag_name by default, or the optional release body with --body. Used as
 update-librewolf.sh's fallback when jq is not available.

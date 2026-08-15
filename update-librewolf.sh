@@ -3,7 +3,7 @@
 set -euo pipefail
 
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-readonly RELEASE_API="${LIBREWOLF_RELEASE_API:-https://codeberg.org/api/v1/repos/librewolf/bsys6/releases/latest}"
+readonly RELEASE_API="${LIBREWOLF_RELEASE_API:-https://librewolf.dev/api/v1/repos/librewolf/bsys6/releases/latest}"
 readonly DOWNLOAD_ROOT="${LIBREWOLF_DOWNLOAD_ROOT:-https://dl.librewolf.net/librewolf}"
 
 CHECK_ONLY=false
@@ -25,7 +25,7 @@ Options:
 
 Environment:
   LIBREWOLF_APP          macOS application path (default: /Applications/LibreWolf.app)
-  LIBREWOLF_RELEASE_API  Override the Codeberg release API URL.
+  LIBREWOLF_RELEASE_API  Override the LibreWolf Forgejo release API URL.
   LIBREWOLF_DOWNLOAD_ROOT Override the release download root.
 EOF
 }
@@ -46,7 +46,7 @@ extract_release_tag() {
   elif command -v python3 >/dev/null 2>&1; then
     python3 "$SCRIPT_DIR/lib/extract_release_tag.py"
   else
-    die 'Parsing Codeberg metadata requires jq or python3.'
+    die 'Parsing release metadata requires jq or python3.'
   fi
 }
 
@@ -56,7 +56,7 @@ extract_release_notes() {
   elif command -v python3 >/dev/null 2>&1; then
     python3 "$SCRIPT_DIR/lib/extract_release_tag.py" --body
   else
-    die 'Parsing Codeberg metadata requires jq or python3.'
+    die 'Parsing release metadata requires jq or python3.'
   fi
 }
 
@@ -295,7 +295,7 @@ main() {
   release_json="$(curl --fail --silent --show-error --location --retry 3 "$RELEASE_API")"
   latest="$(printf '%s\n' "$release_json" | extract_release_tag)"
   release_notes="$(printf '%s\n' "$release_json" | extract_release_notes)"
-  [[ "$latest" =~ ^[0-9]+([.-][0-9]+)+$ ]] || die 'Codeberg returned an invalid release version.'
+  [[ "$latest" =~ ^[0-9]+([.-][0-9]+)+$ ]] || die 'The release API returned an invalid release version.'
 
   if [[ "$SHOW_RELEASE_NOTES" == true ]]; then
     printf 'Latest LibreWolf: %s\n' "$latest"

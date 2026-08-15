@@ -1,6 +1,7 @@
 # LibreWolf Auto Update
 
-A small Bash script that checks the latest LibreWolf release on Codeberg,
+A small Bash script that checks the latest LibreWolf release on the LibreWolf
+Forgejo instance (librewolf.dev),
 compares it with the installed version, and installs the update when a newer
 version is available. Before installing, it shows the release notes published
 by LibreWolf and asks for confirmation (`Y/n`; press Enter to accept).
