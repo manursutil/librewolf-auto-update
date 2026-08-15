@@ -16,6 +16,7 @@ usage() {
 Usage: update-librewolf.sh [--check | --release-notes]
 
 Checks the latest LibreWolf bsys6 release and installs it when it is newer.
+Shows the release notes and asks for confirmation before installing.
 
 Options:
   --check          Only report whether an update is available.
@@ -66,6 +67,15 @@ print_release_notes() {
   else
     printf '\nNo release notes were published for this version.\n'
   fi
+}
+
+confirm_update() {
+  local reply=""
+  read -r -p "Update to LibreWolf $1? [Y/n] " reply || true
+  case "$reply" in
+    [Nn]|[Nn][Oo]) return 1 ;;
+    *) return 0 ;;
+  esac
 }
 
 extract_version() {
@@ -312,6 +322,12 @@ main() {
     exit 0
   fi
 
+  print_release_notes "$release_notes"
+  if ! confirm_update "$latest"; then
+    printf 'Update skipped.\n'
+    exit 0
+  fi
+
   asset="$(select_asset "$latest" "$os" "$arch")"
   download_url="$DOWNLOAD_ROOT/$latest/$asset"
   TEMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/librewolf-update.XXXXXX")"
@@ -337,7 +353,6 @@ main() {
   esac
 
   printf 'LibreWolf %s was installed successfully.\n' "$latest"
-  print_release_notes "$release_notes"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

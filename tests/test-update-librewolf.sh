@@ -47,6 +47,36 @@ release_notes_output="$({
 })"
 assert_equal "$release_notes_output" $'Latest LibreWolf: 152.0.5-1\n\nRelease notes:\n- Fixed startup'
 
+assert_success confirm_update 152.0.5-1 <<< 'y'
+assert_success confirm_update 152.0.5-1 <<< 'Y'
+assert_success confirm_update 152.0.5-1 <<< 'yes'
+assert_success confirm_update 152.0.5-1 <<< ''
+assert_success confirm_update 152.0.5-1 < /dev/null
+assert_failure confirm_update 152.0.5-1 <<< 'n'
+assert_failure confirm_update 152.0.5-1 <<< 'N'
+assert_failure confirm_update 152.0.5-1 <<< 'no'
+
+decline_output="$({
+  curl() { printf '%s' '{"tag_name":"152.0.5-1","body":"- Fixed startup"}'; }
+  export LIBREWOLF_CURRENT_VERSION='152.0.4-1'
+  main <<< 'n'
+})"
+assert_equal "$decline_output" $'Installed LibreWolf: 152.0.4-1\nLatest LibreWolf:    152.0.5-1\n\nRelease notes:\n- Fixed startup\nUpdate skipped.'
+
+if (
+  curl() {
+    case "${!#}" in
+      */releases/latest) printf '%s' '{"tag_name":"152.0.5-1","body":"- Fixed startup"}' ;;
+      *) return 1 ;;
+    esac
+  }
+  export LIBREWOLF_CURRENT_VERSION='152.0.4-1'
+  main <<< 'y'
+) >/dev/null 2>&1; then
+  printf 'Expected a confirmed update to attempt the download.\n' >&2
+  exit 1
+fi
+
 cleanup_log="$(mktemp)"
 cleanup_state="$(mktemp)"
 cleanup_warning="$(mktemp)"

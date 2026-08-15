@@ -2,9 +2,10 @@
 
 A small Bash script that checks the latest LibreWolf release on Codeberg,
 compares it with the installed version, and installs the update when a newer
-version is available. Downloads are verified against LibreWolf's published
-SHA-256 checksum before installation. After a successful update, the script
-prints the release notes published by LibreWolf.
+version is available. Before installing, it shows the release notes published
+by LibreWolf and asks for confirmation (`Y/n`; press Enter to accept).
+Downloads are verified against LibreWolf's published SHA-256 checksum before
+installation.
 
 ## Supported systems
 
@@ -30,7 +31,8 @@ View the latest release notes without updating:
 ./update-librewolf.sh --release-notes
 ```
 
-Download and install an available update:
+Review the release notes and install an available update after confirming
+with `Y` (or just Enter):
 
 ```bash
 ./update-librewolf.sh
