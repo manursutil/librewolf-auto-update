@@ -1,12 +1,8 @@
 # LibreWolf Auto Update
 
-A small Bash script that checks the latest LibreWolf release on the LibreWolf
-Forgejo instance (librewolf.dev),
-compares it with the installed version, and installs the update when a newer
-version is available. Before installing, it shows the release notes published
-by LibreWolf and asks for confirmation (`Y/n`; press Enter to accept).
-Downloads are verified against LibreWolf's published SHA-256 checksum before
-installation.
+A small Bash script that checks the latest LibreWolf release on the LibreWolf Forgejo instance (librewolf.dev), compares it with the installed version, and installs the update when a newer version is available. Before installing, it shows the release notes published by LibreWolf and asks for confirmation (`Y/n`; press Enter to accept).
+
+Downloads are verified against LibreWolf's published SHA-256 checksum before installation.
 
 ## Supported systems
 
@@ -15,8 +11,19 @@ installation.
 - RPM-based Linux using `dnf` or `rpm`
 - ARM64 and x86-64 processors
 
-The script requires `curl`, Bash, either `jq` or Python 3, and either
-`sha256sum` or `shasum`. LibreWolf must already be installed and detectable.
+## Requirements
+
+The script requires `curl`, Bash, either `jq` or Python 3, and either `sha256sum` or `shasum`. LibreWolf must already be installed and detectable.
+
+## Setup
+
+After cloning, run:
+
+```bash
+bash setup.sh
+```
+
+The setup script checks that the updater's required command-line dependencies are available and reports anything missing.
 
 ## Usage
 
@@ -32,8 +39,7 @@ View the latest release notes without updating:
 ./update-librewolf.sh --release-notes
 ```
 
-Review the release notes and install an available update after confirming
-with `Y` (or just Enter):
+Review the release notes and install an available update after confirming with `Y` (or just Enter):
 
 ```bash
 ./update-librewolf.sh
@@ -41,5 +47,4 @@ with `Y` (or just Enter):
 
 The installation may ask for your password through `sudo`.
 
-Run `./update-librewolf.sh --help` to see the documented options and
-environment variables.
+Run `./update-librewolf.sh --help` to see the documented options and environment variables.
