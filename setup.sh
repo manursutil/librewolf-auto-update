@@ -33,5 +33,17 @@ if [ "$missing" -ne 0 ]; then
   exit 1
 fi
 
-echo "✓ LibreWolf updater dependencies are available."
-echo "Run './update-librewolf.sh --check' to check for updates."
+mkdir -p "$HOME/.local/bin"
+ln -sfn "$PWD/update-librewolf.sh" "$HOME/.local/bin/update-librewolf"
+echo "==> Linked update-librewolf -> $HOME/.local/bin/update-librewolf"
+
+case ":$PATH:" in
+  *":$HOME/.local/bin:"*) ;;
+  *)
+    echo "Note: ~/.local/bin is not currently on PATH."
+    echo 'Add this to your shell config: export PATH="$HOME/.local/bin:$PATH"'
+    ;;
+esac
+
+echo "✓ LibreWolf updater setup complete."
+echo "Run 'update-librewolf --check' to check for updates."
