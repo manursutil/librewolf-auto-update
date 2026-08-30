@@ -23,28 +23,36 @@ After cloning, run:
 bash setup.sh
 ```
 
-The setup script checks that the updater's required command-line dependencies are available and reports anything missing.
+The setup script checks that the updater's required command-line dependencies are available, creates `~/.local/bin` if needed, and links:
+
+```text
+~/.local/bin/update-librewolf -> <repo>/update-librewolf.sh
+```
+
+If `~/.local/bin` is not on your `PATH`, the setup script prints the shell configuration line to add it.
 
 ## Usage
 
 Check whether an update is available without installing it:
 
 ```bash
-./update-librewolf.sh --check
+update-librewolf --check
 ```
 
 View the latest release notes without updating:
 
 ```bash
-./update-librewolf.sh --release-notes
+update-librewolf --release-notes
 ```
 
 Review the release notes and install an available update after confirming with `Y` (or just Enter):
 
 ```bash
-./update-librewolf.sh
+update-librewolf
 ```
+
+You can also run `./update-librewolf.sh` directly from the repository.
 
 The installation may ask for your password through `sudo`.
 
-Run `./update-librewolf.sh --help` to see the documented options and environment variables.
+Run `update-librewolf --help` to see the documented options and environment variables.
